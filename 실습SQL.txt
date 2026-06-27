@@ -1,0 +1,214 @@
+select now()
+;
+
+create table tbl_board (
+    bno int auto_increment primary key ,
+    title varchar(500) not null ,
+    content varchar(2000) not null,
+    writer varchar(100) not null,
+    regDate timestamp default now(),
+    updateDate timestamp default  now()
+);
+
+insert into tbl_board (title, content, writer) (select title,content, writer from tbl_board);
+
+create table tbl_reply (
+    rno int auto_increment primary key ,
+    bno int not null,
+    replyText varchar(2000) not null,
+    replyer varchar(100) not null,
+    regDate timestamp default now(),
+    updateDate timestamp default  now(),
+    constraint fk_reply_board
+        foreign key(bno)
+            references tbl_board(bno)
+);
+
+select * from tbl_board order by bno desc;
+
+#1526, 1525
+
+select * from tbl_reply;
+
+update tbl_reply
+ set
+     replyText = 'AAA' ,
+     updateDate = now()
+ where rno = 51
+;
+
+create index idx_reply on tbl_reply (bno desc, rno asc);
+
+select * from tbl_reply where bno =1524 order by rno asc;
+
+create table tbl_sample1 (
+    s1 int auto_increment primary key ,
+    col varchar(500)
+);
+
+create table tbl_sample2 (
+     s2 int auto_increment primary key ,
+     col varchar(50)
+);
+
+select * from tbl_sample1;
+
+select * from tbl_sample2;
+
+create table tbl_attach (
+    ano int auto_increment primary key,
+    uuid varchar(50) ,
+    bno int not null,
+    filename varchar(500) not null
+);
+
+create index idx_attach on tbl_attach(bno desc, ano asc);
+
+
+alter table tbl_attach add constraint  fk_attach_board
+    foreign key (bno) references tbl_board(bno);
+
+select * from tbl_board order by bno desc;
+
+select * from tbl_attach order by bno desc;
+
+create index idx_attach on tbl_attach (bno desc);
+
+select * from tbl_attach
+where bno = 1556
+;
+
+
+select * from tbl_board order by bno desc;
+select * from tbl_attach order by bno desc;
+
+delete from tbl_reply where bno > 1527;
+delete from tbl_board where bno > 1527;
+
+
+select * from tbl_board where bno in (1525,33,44);
+
+select *
+    from
+        tbl_board board
+    left outer join tbl_attach ta on board.bno = ta.bno
+where board.bno = 1558
+order by ta.ano asc;
+
+
+
+select board.bno, title, content,
+       rank() over (partition by  ta.bno order by ta.ano) rk, uuid,fileName
+from
+    tbl_board board
+        left outer join tbl_attach ta on board.bno = ta.bno
+
+order by board.bno desc, ta.ano asc
+;
+
+select *
+from (select board.bno,
+             title,
+             content,
+             rank() over (partition by ta.bno order by ta.ano) rk,
+             uuid,
+             fileName
+      from tbl_board board
+               left outer join tbl_attach ta on board.bno = ta.bno
+
+      order by board.bno desc, ta.ano asc
+      limit 0, 10
+      ) temp
+where rk = 1
+
+;
+
+
+select *
+from
+  (select * from tbl_board board order by bno desc limit 0,10) b
+  left outer join tbl_attach ta on ta.bno = b.bno
+order by b.bno desc, ta.bno
+;
+
+
+select bno, title
+from tbl_board
+order by bno
+;
+
+select *
+from tbl_board b left outer join tbl_attach ta on b.bno = ta.bno
+group by b.bno
+order by b.bno desc
+limit 0,10
+;
+
+create table tbl_member (
+    uid varchar(50) not null  primary key ,
+    upw varchar(100) not null,
+    uname varchar(100) not null,
+    email varchar(100) not null,
+    regDate timestamp default now(),
+    updateDate timestamp default  now()
+);
+
+insert into tbl_member (uid, upw, uname, email)
+values ()
+
+
+create table  tbl_auth (
+  rolename varchar(50) not null,
+  uid varchar(50) not null
+);
+
+insert into tbl_auth (rolename, uid) values ()
+
+alter table tbl_auth add constraint fk_auth
+    foreign key (uid) references tbl_member(uid);
+
+
+select * from tbl_member;
+
+select * from tbl_auth;
+
+delete from tbl_member;
+
+
+select *
+from
+    tbl_member left outer join
+    tbl_auth ta on tbl_member.uid = ta.uid
+where tbl_member.uid ='user99'
+;
+
+
+create table persistent_logins (
+    username varchar(64) not null,
+                                series varchar(64) primary key,
+                                token varchar(64) not null,
+                                last_used timestamp not null)
+
+
+select * from persistent_logins;
+
+create table tbl_attach(
+    ano      int auto_increment primary key,
+    uuid     varchar(50)  null,
+    bno      int          not null,
+    filename varchar(500) not null)
+;
+
+create index idx_attach on tbl_attach (bno desc, ano asc);
+
+
+select * from tbl_attach order by bno desc;
+
+
+select *
+from tbl_board b left outer join
+    tbl_attach ta on b.bno = ta.bno
+where b.bno = 1566
+;
+
+select * from tbl_reply order by rno desc;
